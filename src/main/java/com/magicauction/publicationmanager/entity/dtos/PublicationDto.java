@@ -6,8 +6,8 @@ import java.util.Date;
 
 public record PublicationDto(
         Long publicationId,
-        Long publisherId,
-        String cardName,
+        Long publisher_id,
+        String card_name,
         String state,
         Float price,
         Date createdOn,

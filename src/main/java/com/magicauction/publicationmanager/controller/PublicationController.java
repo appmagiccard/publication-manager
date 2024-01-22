@@ -1,6 +1,7 @@
 package com.magicauction.publicationmanager.controller;
 
 import com.magicauction.publicationmanager.entity.dtos.PublicationDto;
+import com.magicauction.publicationmanager.entity.exceptions.CardNotFoundException;
 import com.magicauction.publicationmanager.entity.exceptions.UserNotFoundException;
 import com.magicauction.publicationmanager.processor.IPublicationProcessor;
 import org.slf4j.Logger;
@@ -46,7 +47,7 @@ public class PublicationController {
 
 
     @PostMapping
-    public ResponseEntity<PublicationDto> createPublication(@RequestBody PublicationDto inputPub) throws UserNotFoundException {
+    public ResponseEntity<PublicationDto> createPublication(@RequestBody PublicationDto inputPub) throws UserNotFoundException, CardNotFoundException {
         return publicationProcessor.createNewPub(inputPub)
                 .map(ResponseEntity::ok)
                 .orElseGet(this::notFoundResponse)

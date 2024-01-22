@@ -1,9 +1,11 @@
 package com.magicauction.publicationmanager.processor;
 
+import com.magicauction.publicationmanager.entity.Card;
 import com.magicauction.publicationmanager.entity.CardState;
 import com.magicauction.publicationmanager.entity.Publication;
 import com.magicauction.publicationmanager.entity.User;
 import com.magicauction.publicationmanager.entity.dtos.PublicationDto;
+import com.magicauction.publicationmanager.entity.exceptions.CardNotFoundException;
 import com.magicauction.publicationmanager.entity.exceptions.UserNotFoundException;
 import com.magicauction.publicationmanager.entity.repository.PublicationRepository;
 import com.magicauction.publicationmanager.entity.repository.UserRepository;
@@ -23,11 +25,13 @@ public class PublicationProcessor implements IPublicationProcessor{
     private final PublicationRepository repository;
     private static final Logger log = LoggerFactory.getLogger(PublicationProcessor.class);
     private final UserRepository userRepository;
+    private final ICardFinder cardFinder;
 
     @Autowired
-    public PublicationProcessor(PublicationRepository repository, UserRepository userRepository) {
+    public PublicationProcessor(PublicationRepository repository, UserRepository userRepository, ICardFinder cardFinder) {
         this.repository = repository;
         this.userRepository = userRepository;
+        this.cardFinder = cardFinder;
     }
 
     @Override
@@ -42,13 +46,14 @@ public class PublicationProcessor implements IPublicationProcessor{
     }
 
     @Override
-    public Optional<PublicationDto> createNewPub(PublicationDto inputPub) throws UserNotFoundException {
+    public Optional<PublicationDto> createNewPub(PublicationDto inputPub) throws UserNotFoundException, CardNotFoundException {
         //Valid user?
         //valid Card?
         if(validateInputPub(inputPub)){
             log.info("inputPub not valid: {}", inputPub);
             return Optional.empty();
         }
+        log.info("Creating new pub with input: [{}]", inputPub);
         return Optional.of(toDto(repository.save(toEntity(inputPub))));
     }
 
@@ -64,6 +69,7 @@ public class PublicationProcessor implements IPublicationProcessor{
             log.info("inputPub not found: {}", inputPub);
             return Optional.empty();
         }
+        log.info("Updating pub {} with input: [{}]", pubId, inputPub);
         Publication publication = optionalPublication.get();
         publication.setPrice(inputPub.price());
         publication.setFinishedOn(inputPub.finishedOn() != null ? inputPub.finishedOn() : null);
@@ -104,7 +110,7 @@ public class PublicationProcessor implements IPublicationProcessor{
         return new PublicationDto(
                 publication.getPublicationId(),
                 publication.getPublisher().getUserId(),
-                publication.getCardName(),
+                publication.getCard().getName(),
                 publication.getCardState().getLabel(),
                 publication.getPrice(),
                 publication.getCreatedOn(),
@@ -112,9 +118,19 @@ public class PublicationProcessor implements IPublicationProcessor{
         );
     }
 
-    private Publication toEntity(PublicationDto inputPub) throws UserNotFoundException {
-        User publisher = findUserById(inputPub.publisherId());
-        return new Publication(inputPub.cardName(), publisher, inputPub.price(), inputPub.state());
+    private Publication toEntity(PublicationDto inputPub) throws UserNotFoundException, CardNotFoundException {
+        User publisher = findUserById(inputPub.publisher_id());
+        Card card = cardFinder.findByName(inputPub.card_name());
+        return toEntity(inputPub, card, publisher);
+    }
+
+    private Publication toEntity(PublicationDto inputPub, Card card) throws UserNotFoundException {
+        User publisher = findUserById(inputPub.publisher_id());
+        return toEntity(inputPub, card, publisher);
+    }
+
+    private Publication toEntity(PublicationDto inputPub, Card card, User publisher) throws UserNotFoundException {
+        return new Publication(card, publisher, inputPub.price(), inputPub.state());
     }
 
     private User findUserById(Long id) throws UserNotFoundException {
@@ -123,6 +139,7 @@ public class PublicationProcessor implements IPublicationProcessor{
     }
 
     private boolean validateInputPub(PublicationDto inputPub) {
+        //TODO: finish this!!
         return false;
     }
 }

@@ -25,10 +25,12 @@ public class Publication {
     @JoinColumn(name="publisher_id", referencedColumnName = "userId")
     private User publisher;
 
-    @ManyToMany()
+    @ManyToMany
     private Set<Offer> offers;
 
-    private String cardName;
+    @ManyToOne
+    @JoinColumn(name="card_id", referencedColumnName = "id")
+    private Card card;
 
     private CardState cardState;
 
@@ -38,10 +40,10 @@ public class Publication {
 
     private Date finishedOn;
 
-    public Publication(String cardName, User publisher, Float price, String state) {
+    public Publication(Card card, User publisher, Float price, String state) {
         this.publisher = publisher;
         this.offers = Collections.emptySet();
-        this.cardName = cardName;
+        this.card = card;
         this.cardState = CardState.valueOfLabel(state);
         this.price = price;
         this.createdOn = new Date();
@@ -49,19 +51,19 @@ public class Publication {
     }
 
 
-    public String getCardName() {
-        return cardName;
+    public Card getCard() {
+        return card;
     }
 
-    public void setCardName(String cardName) {
-        this.cardName = cardName;
+    public void setCard(Card card) {
+        this.card = card;
     }
 
-    public Publication(Long publicationId, User publisher, Set<Offer> offers, String cardName) {
+    public Publication(Long publicationId, User publisher, Set<Offer> offers, Card card) {
         this.publicationId = publicationId;
         this.publisher = publisher;
         this.offers = offers;
-        this.cardName = cardName;
+        this.card = card;
     }
 
     @Override
@@ -69,12 +71,12 @@ public class Publication {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Publication that = (Publication) o;
-        return Objects.equals(publicationId, that.publicationId) && Objects.equals(publisher, that.publisher) && Objects.equals(offers, that.offers) && Objects.equals(cardName, that.cardName) && cardState == that.cardState && Objects.equals(price, that.price) && Objects.equals(createdOn, that.createdOn) && Objects.equals(finishedOn, that.finishedOn);
+        return Objects.equals(publicationId, that.publicationId) && Objects.equals(publisher, that.publisher) && Objects.equals(offers, that.offers) && Objects.equals(card, that.card) && cardState == that.cardState && Objects.equals(price, that.price) && Objects.equals(createdOn, that.createdOn) && Objects.equals(finishedOn, that.finishedOn);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(publicationId, publisher, offers, cardName, cardState, price, createdOn, finishedOn);
+        return Objects.hash(publicationId, publisher, offers, card, cardState, price, createdOn, finishedOn);
     }
 
     @Override
@@ -83,7 +85,7 @@ public class Publication {
                 "publicationId=" + publicationId +
                 ", publisher=" + publisher +
                 ", offers=" + offers +
-                ", cardName='" + cardName + '\'' +
+                ", card='" + card + '\'' +
                 ", cardState=" + cardState +
                 ", price=" + price +
                 ", createdOn=" + createdOn +
@@ -115,11 +117,11 @@ public class Publication {
         this.finishedOn = finishedOn;
     }
 
-    public Publication(Long publicationId, User publisher, Set<Offer> offers, String cardName, CardState cardState, Float price, Date createdOn, Date finishedOn) {
+    public Publication(Long publicationId, User publisher, Set<Offer> offers, Card card, CardState cardState, Float price, Date createdOn, Date finishedOn) {
         this.publicationId = publicationId;
         this.publisher = publisher;
         this.offers = offers;
-        this.cardName = cardName;
+        this.card = card;
         this.cardState = cardState;
         this.price = price;
         this.createdOn = createdOn;
@@ -160,10 +162,10 @@ public class Publication {
     public Publication() {
     }
 
-    public Publication(Long publicationId, User publisher, String cardName, CardState cardState) {
+    public Publication(Long publicationId, User publisher, Card card, CardState cardState) {
         this.publicationId = publicationId;
         this.publisher = publisher;
-        this.cardName = cardName;
+        this.card = card;
         this.cardState = cardState;
     }
 
@@ -183,11 +185,11 @@ public class Publication {
         this.cardState = cardState;
     }
 
-    public Publication(Long publicationId, User publisher, Set<Offer> offers, String cardName, CardState cardState) {
+    public Publication(Long publicationId, User publisher, Set<Offer> offers, Card card, CardState cardState) {
         this.publicationId = publicationId;
         this.publisher = publisher;
         this.offers = offers;
-        this.cardName = cardName;
+        this.card = card;
         this.cardState = cardState;
     }
 }
