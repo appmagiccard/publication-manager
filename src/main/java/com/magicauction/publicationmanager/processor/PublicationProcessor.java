@@ -124,11 +124,6 @@ public class PublicationProcessor implements IPublicationProcessor{
         return toEntity(inputPub, card, publisher);
     }
 
-    private Publication toEntity(PublicationDto inputPub, Card card) throws UserNotFoundException {
-        User publisher = findUserById(inputPub.publisher_id());
-        return toEntity(inputPub, card, publisher);
-    }
-
     private Publication toEntity(PublicationDto inputPub, Card card, User publisher) throws UserNotFoundException {
         return new Publication(card, publisher, inputPub.price(), inputPub.state());
     }
